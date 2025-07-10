@@ -22,7 +22,7 @@ public unsafe partial struct RelocationTable
             
             byte* @base = (byte*)section.GetBasePtr(tableBase);
             int globalEntryIndex = section.FirstEntryIndex;
-            int end = globalEntryIndex + section.FirstEntryIndex;
+            int end = globalEntryIndex + section.EntryCount;
 
             for (int entryIndex = globalEntryIndex; entryIndex < end; entryIndex++) {
                 RelocationTableSectionEntry entry = entries[entryIndex];
@@ -30,14 +30,14 @@ public unsafe partial struct RelocationTable
                 BitFlag32 mask = new(entry.Mask);
                 
                 ulong* pointerPtr = (ulong*)(tableBase + pointersOffset);
-                for (int i = 0; i < 32; ++i, pointerPtr += sizeof(ulong)) {
+                for (int i = 0; i < 32; ++i, ++pointerPtr) {
                     if (!mask[i]) {
                         continue;
                     }
                     
-                    int offset = (int)(*pointerPtr);
+                    int offset = (int)*pointerPtr;
                     void* ptr = offset == 0 ? (void*)0 : @base + offset;
-                    Buffer.MemoryCopy(ptr, pointerPtr, sizeof(ulong), sizeof(ulong));
+                    Buffer.MemoryCopy(&ptr, pointerPtr, sizeof(ulong), sizeof(ulong));
                 }
             }
         }
@@ -63,7 +63,7 @@ public unsafe partial struct RelocationTable
                 BitFlag32 mask = new(entry.Mask);
                 
                 var pointerPtr = (void**)(tableBase + pointersOffset);
-                for (int i = 0; i < 32; ++i, pointerPtr += sizeof(ulong)) {
+                for (int i = 0; i < 32; ++i, ++pointerPtr) {
                     if (!mask[i]) {
                         continue;
                     }
@@ -96,7 +96,7 @@ public unsafe partial struct RelocationTable
     private RelocationTableSectionEntry* GetEntries()
     {
         return (RelocationTableSectionEntry*)(
-            GetSections() + sizeof(RelocationTableSectionEntry) * SectionCount
+            GetSections() + SectionCount
         );
     }
 
@@ -163,6 +163,6 @@ file readonly struct BitFlag32(uint flags)
 
     public bool this[int index] {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => (_flags & (1 << index)) == 1;
+        get => (_flags & (1 << index)) > 0;
     }
 }
