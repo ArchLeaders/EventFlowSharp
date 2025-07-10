@@ -43,4 +43,9 @@ public readonly struct BinaryFileVersion : IEquatable<BinaryFileVersion>
     {
         return HashCode.Combine(Major, Minor, Patch, Sub);
     }
+
+    public override string ToString()
+    {
+        return $"{Major}.{Minor}.{Patch}.{Sub}";
+    }
 }
