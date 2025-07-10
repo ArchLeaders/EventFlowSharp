@@ -9,23 +9,23 @@ public unsafe partial struct RelocationTable
     public int TableStartOffset;
     public int SectionCount;
     private uint _padding;
-    public Section FirstSection;
+    public RelocationTableSection FirstSection;
 
     public void Relocate()
     {
         byte* tableBase = GetTableBase();
-        Section* sections = GetSections();
-        Section.Entry* entries = GetEntries();
+        RelocationTableSection* sections = GetSections();
+        RelocationTableSectionEntry* entries = GetEntries();
 
         for (int sectionIndex = 0; sectionIndex < SectionCount; sectionIndex++) {
-            ref Section section = ref sections[sectionIndex];
+            ref RelocationTableSection section = ref sections[sectionIndex];
             
             byte* @base = (byte*)section.GetBasePtr(tableBase);
             int globalEntryIndex = section.FirstEntryIndex;
             int end = globalEntryIndex + section.FirstEntryIndex;
 
             for (int entryIndex = globalEntryIndex; entryIndex < end; entryIndex++) {
-                Section.Entry entry = entries[entryIndex];
+                RelocationTableSectionEntry entry = entries[entryIndex];
                 int pointersOffset = entry.PointersOffset;
                 BitFlag32 mask = new(entry.Mask);
                 
@@ -46,11 +46,11 @@ public unsafe partial struct RelocationTable
     public void UnRelocate()
     {
         byte* tableBase = GetTableBase();
-        Section* sections = GetSections();
-        Section.Entry* entries = GetEntries();
+        RelocationTableSection* sections = GetSections();
+        RelocationTableSectionEntry* entries = GetEntries();
         
         for (int sectionIndex = 0; sectionIndex < SectionCount; sectionIndex++) {
-            ref Section section = ref sections[sectionIndex];
+            ref RelocationTableSection section = ref sections[sectionIndex];
             
             byte* @base = (byte*)section.GetBasePtr(tableBase);
             section.ResetPointer();
@@ -58,7 +58,7 @@ public unsafe partial struct RelocationTable
             int end = globalEntryIndex + section.FirstEntryIndex;
 
             for (int entryIndex = globalEntryIndex; entryIndex < end; entryIndex++) {
-                Section.Entry entry = entries[entryIndex];
+                RelocationTableSectionEntry entry = entries[entryIndex];
                 int pointersOffset = entry.PointersOffset;
                 BitFlag32 mask = new(entry.Mask);
                 
@@ -79,24 +79,24 @@ public unsafe partial struct RelocationTable
     public static int CalcSize(int sectionCount, int entryCount)
     {
         int size = 0x4 * 0x4; // RelocationTable header fields
-        size += sizeof(Section) * sectionCount;
-        size += sizeof(Section.Entry) * entryCount;
+        size += sizeof(RelocationTableSection) * sectionCount;
+        size += sizeof(RelocationTableSectionEntry) * entryCount;
         return size;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Section* GetSections()
+    private RelocationTableSection* GetSections()
     {
-        fixed (Section* ptr = &FirstSection) {
+        fixed (RelocationTableSection* ptr = &FirstSection) {
             return ptr;
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Section.Entry* GetEntries()
+    private RelocationTableSectionEntry* GetEntries()
     {
-        return (Section.Entry*)(
-            GetSections() + sizeof(Section.Entry) * SectionCount
+        return (RelocationTableSectionEntry*)(
+            GetSections() + sizeof(RelocationTableSectionEntry) * SectionCount
         );
     }
 
@@ -108,51 +108,53 @@ public unsafe partial struct RelocationTable
         }
     }
     
-    [Reversable]
-    public unsafe partial struct Section
+}
+
+[Reversable]
+public unsafe partial struct RelocationTableSection
+{
+    public ulong Pointer;
+    public uint Offset;
+    public int Size;
+    public int FirstEntryIndex;
+    public int EntryCount;
+
+    public void ResetPointer() => Pointer = 0;
+
+    public void* GetPtr()
     {
-        public ulong Pointer;
-        public uint Offset;
-        public int Size;
-        public int FirstEntryIndex;
-        public int EntryCount;
+        return (void*)Pointer;
+    }
 
-        public void ResetPointer() => Pointer = 0;
+    public void* GetPtrInFile(void* @base)
+    {
+        return (void*)((ulong)@base + Offset);
+    }
 
-        public void* GetPtr()
-        {
-            return (void*)Pointer;
+    public void* GetBasePtr(void* @base)
+    {
+        if (Pointer > 0) {
+            return (void*)(Pointer - (ulong)@base);
         }
 
-        public void* GetPtrInFile(void* @base)
-        {
-            return (void*)((ulong)@base + Offset);
-        }
+        return @base;
+    }
 
-        public void* GetBasePtr(void* @base)
-        {
-            if (Pointer > 0) {
-                return (void*)(Pointer - (ulong)@base);
-            }
+}
 
-            return @base;
-        }
-    
-        [Reversable]
-        public partial struct Entry
-        {
-            /// <summary>
-            /// Offset to pointers to relocate
-            /// </summary>
-            public int PointersOffset;
+[Reversable]
+public partial struct RelocationTableSectionEntry
+{
+    /// <summary>
+    /// Offset to pointers to relocate
+    /// </summary>
+    public int PointersOffset;
 
-            /// <summary>
-            /// Bit field that determines which pointers need to be relocated
-            /// (next to 32 contiguous pointers starting from the listed offset)
-            /// </summary>
-            public uint Mask;
-        };
-    };
+    /// <summary>
+    /// Bit field that determines which pointers need to be relocated
+    /// (next to 32 contiguous pointers starting from the listed offset)
+    /// </summary>
+    public uint Mask;
 }
 
 file readonly struct BitFlag32(uint flags)
@@ -163,4 +165,4 @@ file readonly struct BitFlag32(uint flags)
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => (_flags & (1 << index)) == 1;
     }
-};
+}

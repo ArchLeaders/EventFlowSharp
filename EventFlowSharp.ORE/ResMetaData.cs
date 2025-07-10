@@ -11,7 +11,7 @@ public partial struct ResMetaData
     public DataType Type;
     public ushort ItemCount;
     public BinaryPointer<ResDic> Dictionary;
-    public ValueUnion Value;
+    public ResMetaDataValue Value;
     
     /// <summary>
     /// Only usable if <see cref="Type"/> == <see cref="DataType.Container"/>.
@@ -40,32 +40,6 @@ public partial struct ResMetaData
     {
         public BinaryPointer<BinaryString<byte>> Name;
         public BinaryPointer<BinaryString<byte>> SubName;
-    };
-    
-    [Reversable]
-    [StructLayout(LayoutKind.Explicit)]
-    public struct ValueUnion
-    {
-        [FieldOffset(0)]
-        public BinaryPointer<ResMetaData> Container;
-        
-        /// <summary>
-        /// Also used for booleans. Anything that is != 0 is treated as true.
-        /// </summary>
-        [FieldOffset(0)]
-        public int Int;
-        
-        [FieldOffset(0)]
-        public float Float;
-        
-        [FieldOffset(0)]
-        public BinaryPointer<BinaryString<byte>> String;
-        
-        [FieldOffset(0)]
-        public BinaryPointer<BinaryString<char>> WideString;
-        
-        [FieldOffset(0)]
-        public ResMetaData.ActorIdentifier Actor;
     }
     
     public enum DataType : byte
@@ -84,4 +58,30 @@ public partial struct ResMetaData
         WStringArray,
         ActorIdentifier
     }
+}
+
+[Reversable]
+[StructLayout(LayoutKind.Explicit)]
+public partial struct ResMetaDataValue
+{
+    [FieldOffset(0)]
+    public BinaryPointer<ResMetaData> Container;
+        
+    /// <summary>
+    /// Also used for booleans. Anything that is != 0 is treated as true.
+    /// </summary>
+    [FieldOffset(0)]
+    public int Int;
+        
+    [FieldOffset(0)]
+    public float Float;
+        
+    [FieldOffset(0)]
+    public BinaryPointer<BinaryString<byte>> String;
+        
+    [FieldOffset(0)]
+    public BinaryPointer<BinaryString<char>> WideString;
+        
+    [FieldOffset(0)]
+    public ResMetaData.ActorIdentifier Actor;
 }
