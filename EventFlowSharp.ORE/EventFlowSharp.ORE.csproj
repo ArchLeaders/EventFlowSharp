@@ -14,4 +14,8 @@
     <PackageReference Include="Revrs.Primitives" Version="2.1.0-dev6" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="Revrs.Attributes" />
+  </ItemGroup>
+
 </Project>

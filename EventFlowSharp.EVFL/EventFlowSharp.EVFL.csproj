@@ -11,5 +11,9 @@
   <ItemGroup>
     <ProjectReference Include="..\EventFlowSharp.ORE\EventFlowSharp.ORE.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Using Include="Revrs.Attributes" />
+  </ItemGroup>
 
 </Project>
