@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="Revrs" Version="2.1.0-dev7" />
     <PackageReference Include="Revrs.Primitives" Version="2.1.0-dev7" />
   </ItemGroup>
