@@ -22,6 +22,15 @@ public unsafe struct BinaryPointer<T> where T : unmanaged
     {
         return ref MemUtils.GetRelativeTo<T>((void*)OffsetOrPtr, 0);
     }
+
+    /// <summary>
+    /// Only use this after relocation.
+    /// </summary>
+    /// <returns></returns>
+    public T* GetPtr()
+    {
+        return (T*)OffsetOrPtr;
+    }
     
     public void Clear()
     {

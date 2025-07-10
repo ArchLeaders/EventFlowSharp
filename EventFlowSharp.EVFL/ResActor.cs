@@ -3,7 +3,7 @@ using EventFlowSharp.ORE;
 
 namespace EventFlowSharp.EVFL;
 
-[Reversable]
+[Reversible]
 public partial struct ResActor
 {
     public BinaryPointer<BinaryString<byte>> Name;

@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 
 namespace EventFlowSharp.ORE;
 
-[Reversable]
+[Reversible]
 public unsafe partial struct RelocationTable
 {
     public uint Magic;
@@ -110,7 +110,7 @@ public unsafe partial struct RelocationTable
     
 }
 
-[Reversable]
+[Reversible]
 public unsafe partial struct RelocationTableSection
 {
     public ulong Pointer;
@@ -142,7 +142,7 @@ public unsafe partial struct RelocationTableSection
 
 }
 
-[Reversable]
+[Reversible]
 public partial struct RelocationTableSectionEntry
 {
     /// <summary>

@@ -1,6 +1,6 @@
 namespace EventFlowSharp.ORE;
 
-[Reversable]
+[Reversible]
 public partial struct BinaryBlockHeader
 {
     public uint Magic;

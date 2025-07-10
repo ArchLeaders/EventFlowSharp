@@ -3,7 +3,7 @@ using EventFlowSharp.ORE;
 
 namespace EventFlowSharp.EVFL;
 
-[Reversable]
+[Reversible]
 public partial struct ResVariableDef
 {
     public ResVariableDefValue Value;
@@ -12,7 +12,7 @@ public partial struct ResVariableDef
 
 }
 
-[Reversable]
+[Reversible]
 [StructLayout(LayoutKind.Explicit, Size = 8)]
 public partial struct ResVariableDefValue
 {

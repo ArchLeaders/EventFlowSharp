@@ -1,6 +1,6 @@
 namespace EventFlowSharp.EVFL;
 
-[Reversable]
+[Reversible]
 public partial struct ResCase
 {
     public uint Value;

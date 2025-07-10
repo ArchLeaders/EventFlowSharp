@@ -5,7 +5,7 @@ using Revrs.Primitives;
 
 namespace EventFlowSharp.EVFL;
 
-[Reversable]
+[Reversible]
 public partial struct ResFlowchart
 {
     public const uint ResFlowchartMagic = 0x4C465645;

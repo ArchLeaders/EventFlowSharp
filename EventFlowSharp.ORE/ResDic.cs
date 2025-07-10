@@ -3,7 +3,7 @@ using Revrs.Primitives;
 
 namespace EventFlowSharp.ORE;
 
-[Reversable]
+[Reversible]
 public unsafe partial struct ResDic
 {
     public uint Magic;
@@ -92,7 +92,7 @@ public unsafe partial struct ResDic
     }
 }
 
-[Reversable]
+[Reversible]
 public unsafe partial struct ResDicEntry
 {
     // Bits 3-7: index of the byte that should be checked

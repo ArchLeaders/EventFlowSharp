@@ -10,7 +10,7 @@ public enum RelocationFlags : ushort
     IsRelocated = 1 << 0
 }
 
-[Reversable]
+[Reversible]
 public partial struct BinaryFileHeader
 {
     [DoNotReverse]

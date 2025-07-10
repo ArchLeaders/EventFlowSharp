@@ -4,7 +4,7 @@ using Revrs.Primitives;
 
 namespace EventFlowSharp.ORE;
 
-[Reversable]
+[Reversible]
 [StructLayout(LayoutKind.Sequential, Pack = 2)]
 public partial struct ResMetaData
 {
@@ -27,19 +27,13 @@ public partial struct ResMetaData
         }
 
         fixed (BinaryPointer<ResMetaData>* ptr = &Value.Container) {
-            ref ResMetaData meta = ref (ptr + index * sizeof(BinaryPointer<ResMetaData>))->Get();
+            ref ResMetaData meta = ref (ptr + index)->Get();
             if (meta.Type != expectedType) {
                 return ref Unsafe.NullRef<ResMetaData>();
             }
 
             return ref meta;
         }
-    }
-    
-    public struct ActorIdentifier
-    {
-        public BinaryPointer<BinaryString<byte>> Name;
-        public BinaryPointer<BinaryString<byte>> SubName;
     }
     
     public enum DataType : byte
@@ -60,12 +54,21 @@ public partial struct ResMetaData
     }
 }
 
-[Reversable]
+[Reversible]
 [StructLayout(LayoutKind.Explicit)]
 public partial struct ResMetaDataValue
 {
     [FieldOffset(0)]
-    public BinaryPointer<ResMetaData> Container;
+    private ulong _container;
+
+    public unsafe ref BinaryPointer<ResMetaData> Container {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get {
+            fixed (ulong* ptr = &_container) {
+                return ref Unsafe.AsRef<BinaryPointer<ResMetaData>>(ptr);
+            }
+        }
+    }
         
     /// <summary>
     /// Also used for booleans. Anything that is != 0 is treated as true.
@@ -83,5 +86,12 @@ public partial struct ResMetaDataValue
     public BinaryPointer<BinaryString<char>> WideString;
         
     [FieldOffset(0)]
-    public ResMetaData.ActorIdentifier Actor;
+    public ResMetaDataActorIdentifier Actor;
 }
+
+[Reversible]
+public partial struct ResMetaDataActorIdentifier
+{
+    public BinaryPointer<BinaryString<byte>> Name;
+    public BinaryPointer<BinaryString<byte>> SubName;
+} 

@@ -3,7 +3,7 @@ using EventFlowSharp.ORE;
 
 namespace EventFlowSharp.EVFL;
 
-[Reversable]
+[Reversible]
 [StructLayout(LayoutKind.Explicit)]
 public partial struct ResEvent
 {
@@ -38,7 +38,7 @@ public partial struct ResEvent
     }
 }
 
-[Reversable]
+[Reversible]
 [StructLayout(LayoutKind.Sequential, Size = 30)]
 public partial struct ResActionEvent
 {
@@ -48,7 +48,7 @@ public partial struct ResActionEvent
     public BinaryPointer<ResMetaData> Params;
 }
 
-[Reversable]
+[Reversible]
 [StructLayout(LayoutKind.Sequential, Size = 30)]
 public partial struct ResSwitchEvent
 {
@@ -59,7 +59,7 @@ public partial struct ResSwitchEvent
     public BinaryPointer<ResCase> Cases;
 }
 
-[Reversable]
+[Reversible]
 [StructLayout(LayoutKind.Explicit, Size = 30)]
 public partial struct ResForkEvent
 {
@@ -73,14 +73,14 @@ public partial struct ResForkEvent
     public BinaryPointer<ushort> ForkEventIndices;
 }
 
-[Reversable]
+[Reversible]
 [StructLayout(LayoutKind.Sequential, Size = 30)]
 public partial struct ResJoinEvent
 {
     public ushort NextEventIndex;
 }
 
-[Reversable]
+[Reversible]
 [StructLayout(LayoutKind.Explicit, Size = 30)]
 public partial struct ResSubFlowEvent
 {
