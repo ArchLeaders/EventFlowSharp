@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Entish" Version="1.0.0-beta1.4" />
+    <PackageReference Include="Entish" Version="1.0.0-beta2" />
   </ItemGroup>
 
   <ItemGroup>
