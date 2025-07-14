@@ -62,7 +62,13 @@ public unsafe struct ResEventFlowFile : ISwappable<ResEventFlowFile>
     public static void Swap(ResEventFlowFile* target)
     {
         BinaryFileHeader.Swap(&target->Header);
-        //
-        // uint* a = &target->Test[0];
+        EndianUtils.Swap(&target->FlowchartCount);
+        EndianUtils.Swap(&target->TimelineCount);
+        BinaryPointer<BinaryPointer<ResFlowchart>>.Swap(&target->Flowcharts);
+        BinaryPointer<ResDic>.Swap(&target->FlowchartNames);
+        BinaryPointer<BinaryPointer<ResTimeline>>.Swap(&target->Timelines);
+        BinaryPointer<ResDic>.Swap(&target->TimelineNames);
+        
+        // TODO: Swap all flowchart/timeline pointers and pointer values
     }
 }
