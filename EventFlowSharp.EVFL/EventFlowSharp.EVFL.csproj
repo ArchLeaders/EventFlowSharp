@@ -13,7 +13,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Using Include="Revrs.Attributes" />
+    <Using Include="Entish.Attributes" />
   </ItemGroup>
 
 </Project>

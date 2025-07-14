@@ -2,7 +2,7 @@ using EventFlowSharp.ORE;
 
 namespace EventFlowSharp.EVFL;
 
-[Reversible]
+[Swappable]
 public partial struct ResEntryPoint
 {
     public BinaryPointer<ushort> SubFlowEventIndices;

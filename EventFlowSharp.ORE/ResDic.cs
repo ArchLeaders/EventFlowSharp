@@ -1,9 +1,8 @@
 using System.Runtime.CompilerServices;
-using Revrs.Primitives;
 
 namespace EventFlowSharp.ORE;
 
-[Reversible]
+[Swappable]
 public unsafe partial struct ResDic
 {
     public uint Magic;
@@ -40,7 +39,7 @@ public unsafe partial struct ResDic
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int FindIndex(in StringView key) => FindIndex(key.Value);
 
-    /// <inheritdoc cref="FindIndex(in Revrs.Primitives.StringView)"/>
+    /// <inheritdoc cref="FindIndex(in StringView)"/>
     public int FindIndex(in ReadOnlySpan<byte> key)
     {    
         ref ResDicEntry entry = ref FindEntry(key);
@@ -92,7 +91,7 @@ public unsafe partial struct ResDic
     }
 }
 
-[Reversible]
+[Swappable]
 public unsafe partial struct ResDicEntry
 {
     // Bits 3-7: index of the byte that should be checked

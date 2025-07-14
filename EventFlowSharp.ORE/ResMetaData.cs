@@ -1,10 +1,9 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Revrs.Primitives;
 
 namespace EventFlowSharp.ORE;
 
-[Reversible]
+[Swappable]
 [StructLayout(LayoutKind.Sequential, Pack = 2)]
 public partial struct ResMetaData
 {
@@ -54,7 +53,7 @@ public partial struct ResMetaData
     }
 }
 
-[Reversible]
+[Swappable]
 [StructLayout(LayoutKind.Explicit)]
 public partial struct ResMetaDataValue
 {
@@ -89,7 +88,7 @@ public partial struct ResMetaDataValue
     public ResMetaDataActorIdentifier Actor;
 }
 
-[Reversible]
+[Swappable]
 public partial struct ResMetaDataActorIdentifier
 {
     public BinaryPointer<BinaryString<byte>> Name;

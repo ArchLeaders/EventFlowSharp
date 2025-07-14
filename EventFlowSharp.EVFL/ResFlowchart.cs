@@ -1,11 +1,10 @@
 using System.Runtime.CompilerServices;
+using Entish;
 using EventFlowSharp.ORE;
-using Revrs;
-using Revrs.Primitives;
 
 namespace EventFlowSharp.EVFL;
 
-[Reversible]
+[Swappable]
 public partial struct ResFlowchart
 {
     public const uint ResFlowchartMagic = 0x4C465645;

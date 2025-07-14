@@ -9,12 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Revrs" Version="2.1.0-dev7" />
-    <PackageReference Include="Revrs.Primitives" Version="2.1.0-dev7" />
+    <PackageReference Include="Entish" Version="1.0.0-beta1.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Revrs.Attributes" />
+    <Using Include="Entish.Attributes" />
   </ItemGroup>
 
 </Project>

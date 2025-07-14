@@ -1,9 +1,9 @@
 using System.Runtime.CompilerServices;
-using Revrs;
+using Entish;
 
 namespace EventFlowSharp.ORE;
 
-public struct BinaryString<T> : IStructReverser where T : unmanaged
+public struct BinaryString<T> : ISwappable<BinaryString<T>> where T : unmanaged
 {
     public ushort Length;
     public T Chars;
@@ -32,8 +32,8 @@ public struct BinaryString<T> : IStructReverser where T : unmanaged
         return MemUtils.GetRelativeTo<BinaryString<T>, BinaryString<T>>(this, (sizeof(T) * (Length + 1)).AlignUp(2));
     }
 
-    public static void Reverse(in Span<byte> slice)
+    public static unsafe void Swap(BinaryString<T>* value)
     {
-        slice[..2].Reverse();
+        EndianUtils.Swap(&value->Length);
     }
 }

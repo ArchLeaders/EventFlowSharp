@@ -2,7 +2,7 @@ using EventFlowSharp.ORE;
 
 namespace EventFlowSharp.EVFL;
 
-[Reversible]
+[Swappable]
 public partial struct ResAction
 {
     public BinaryPointer<BinaryString<byte>> Name;

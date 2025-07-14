@@ -1,6 +1,5 @@
 using System.Runtime.CompilerServices;
-using Revrs;
-using Revrs.Primitives;
+using Entish;
 
 namespace EventFlowSharp.ORE;
 
@@ -10,13 +9,13 @@ public enum RelocationFlags : ushort
     IsRelocated = 1 << 0
 }
 
-[Reversible]
+[Swappable]
 public partial struct BinaryFileHeader
 {
-    [DoNotReverse]
+    [NeverSwap]
     public ulong Magic;
 
-    [DoNotReverse]
+    [NeverSwap]
     public BinaryFileVersion Version;
 
     public Endianness ByteOrder;

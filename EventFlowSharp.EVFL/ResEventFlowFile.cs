@@ -1,19 +1,32 @@
 using System.Runtime.CompilerServices;
+using Entish;
 using EventFlowSharp.ORE;
-using Revrs.Extensions;
 
 namespace EventFlowSharp.EVFL;
 
-public struct ResEventFlowFile
+public unsafe struct ResEventFlowFile : ISwappable<ResEventFlowFile>
 {
     public const ulong Magic = 0x4C4656454642;
     public static readonly BinaryFileVersion Version = new(0, 3, 0, 0);
+    
+    public BinaryFileHeader Header;
+    public ushort FlowchartCount;
+    public ushort TimelineCount;
+    public BinaryPointer<BinaryPointer<ResFlowchart>> Flowcharts;
+    public BinaryPointer<ResDic> FlowchartNames;
+    public BinaryPointer<BinaryPointer<ResTimeline>> Timelines;
+    public BinaryPointer<ResDic> TimelineNames;
 
-    /// data must be a pointer to a buffer of size >= 0x20.
+    /// <summary>
+    /// Data must be a pointer to a buffer of size >= 0x20.
+    /// </summary>
+    /// <param name="data"></param>
+    /// <returns></returns>
     public static bool IsValid(Span<byte> data)
     {
-        return data.Read<ulong>() == Magic &&
-               data[sizeof(ulong)..].Read<BinaryFileVersion>() == Version;
+        byte* ptr = (byte*)Unsafe.AsPointer(ref data.GetPinnableReference());
+        return *(ulong*)ptr == Magic &&
+               *(BinaryFileVersion*)(ptr + sizeof(ulong)) == Version;
     }
 
     /// data must be a valid ResEventFlowFile.
@@ -45,12 +58,11 @@ public struct ResEventFlowFile
         table.UnRelocate();
         Header.SetUnRelocated();
     }
-
-    public BinaryFileHeader Header;
-    public ushort FlowchartCount;
-    public ushort TimelineCount;
-    public BinaryPointer<BinaryPointer<ResFlowchart>> Flowcharts;
-    public BinaryPointer<ResDic> FlowchartNames;
-    public BinaryPointer<BinaryPointer<ResTimeline>> Timelines;
-    public BinaryPointer<ResDic> TimelineNames;
+    
+    public static void Swap(ResEventFlowFile* target)
+    {
+        BinaryFileHeader.Swap(&target->Header);
+        //
+        // uint* a = &target->Test[0];
+    }
 }
