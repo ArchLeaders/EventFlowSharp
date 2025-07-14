@@ -3,7 +3,7 @@ using Entish;
 
 namespace EventFlowSharp.ORE;
 
-public unsafe struct BinaryPointer<T> where T : unmanaged
+public unsafe struct BinaryPointer<T> : ISwappable<BinaryPointer<T>> where T : unmanaged
 {
     public ulong OffsetOrPtr;
 
@@ -56,4 +56,10 @@ public unsafe struct BinaryPointer<T> where T : unmanaged
     public void Relocate(void* owner) => Set(ref GetRelativeTo(owner));
     
     public void UnRelocate(void* owner) => SetOffset(owner, ref Get());
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Swap(BinaryPointer<T>* value)
+    {
+        EndianUtils.Swap(&value->OffsetOrPtr);
+    }
 }
