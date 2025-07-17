@@ -27,9 +27,12 @@ public struct BinaryString<T> : ISwappable<BinaryString<T>> where T : unmanaged
         get => ref Data[index];
     }
 
-    public unsafe BinaryString<T> NextString()
+    public unsafe BinaryString<T>* NextString()
     {
-        return MemUtils.GetRelativeTo<BinaryString<T>, BinaryString<T>>(this, (sizeof(T) * (Length + 1)).AlignUp(2));
+        fixed (BinaryString<T>* ptr = &this) {
+            byte* offset = (byte*)ptr + (sizeof(T) * (Length + 1)).AlignUp(2);
+            return (BinaryString<T>*)offset;
+        }
     }
 
     public static unsafe void Swap(BinaryString<T>* value)

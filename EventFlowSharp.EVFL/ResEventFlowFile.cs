@@ -4,7 +4,7 @@ using EventFlowSharp.ORE;
 
 namespace EventFlowSharp.EVFL;
 
-public unsafe struct ResEventFlowFile : ISwappable<ResEventFlowFile>
+public unsafe struct ResEventFlowFile
 {
     public const ulong Magic = 0x4C4656454642;
     public static readonly BinaryFileVersion Version = new(0, 3, 0, 0);
@@ -69,6 +69,28 @@ public unsafe struct ResEventFlowFile : ISwappable<ResEventFlowFile>
         BinaryPointer<BinaryPointer<ResTimeline>>.Swap(&target->Timelines);
         BinaryPointer<ResDic>.Swap(&target->TimelineNames);
         
-        // TODO: Swap all flowchart/timeline pointers and pointer values
+        // Stores the base pointer
+        // for swapping BinTPointers (BinaryPointer<T>)
+        ResEndian endian = new(target);
+
+        for (int i = 0; i < target->FlowchartCount; i++) {
+            BinaryPointer<ResFlowchart>* ptr = target->Flowcharts.ToPtr(endian.Base);
+            BinaryPointer<ResFlowchart>.Swap(ptr);
+            ResFlowchart* flowchart = ptr->ToPtr(endian.Base);
+            ResFlowchart.Swap(flowchart);
+        }
+        
+        ResDic.Swap(target->FlowchartNames.ToPtr(endian.Base));
+
+        for (int i = 0; i < target->TimelineCount; i++) {
+            BinaryPointer<ResTimeline>* ptr = target->Timelines.ToPtr(endian.Base);
+            BinaryPointer<ResTimeline>.Swap(ptr);
+            ResTimeline* timeline = ptr->ToPtr(endian.Base);
+            ResTimeline.Swap(timeline);
+        }
+        
+        ResDic.Swap(target->TimelineNames.ToPtr(endian.Base));
+        
+        StringPool.Swap(target->Header.FindFirstBlock<StringPool>(StringPool.Magic));
     }
 }

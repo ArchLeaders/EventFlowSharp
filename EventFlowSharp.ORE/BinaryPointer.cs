@@ -44,7 +44,7 @@ public unsafe struct BinaryPointer<T> : ISwappable<BinaryPointer<T>> where T : u
         }
     }
 
-    public ref T GetRelativeTo(void* owner)
+    public ref T ToRef(void* owner)
     {
         if (OffsetOrPtr == 0) {
             Unsafe.NullRef<T>();
@@ -53,7 +53,16 @@ public unsafe struct BinaryPointer<T> : ISwappable<BinaryPointer<T>> where T : u
         return ref MemUtils.GetRelativeTo<T>(owner, (uint)OffsetOrPtr);
     }
 
-    public void Relocate(void* owner) => Set(ref GetRelativeTo(owner));
+    public T* ToPtr(void* owner)
+    {
+        if (OffsetOrPtr == 0) {
+            return null;
+        }
+        
+        return (T*)((byte*)owner + OffsetOrPtr);
+    }
+
+    public void Relocate(void* owner) => Set(ref ToRef(owner));
     
     public void UnRelocate(void* owner) => SetOffset(owner, ref Get());
     

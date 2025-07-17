@@ -9,22 +9,35 @@ public partial struct ResFlowchart
 {
     public const uint ResFlowchartMagic = 0x4C465645;
 
+    [NeverSwap]
     public uint Magic = ResFlowchartMagic;
-    
+
     /// <summary>
     /// String pool offset (relative to this structure)
     /// </summary>
     public uint StringPoolOffset;
+
+    [NeverSwap]
     private uint _reserved8;
+
+    [NeverSwap]
     private uint _reservedC;
+
     public ushort ActorCount;
     public ushort ActionCount;
     public ushort QueryCount;
     public ushort EventCount;
     public ushort EntryPointCount;
+
+    [NeverSwap]
     private ushort _reserved1A;
+
+    [NeverSwap]
     private ushort _reserved1B;
+
+    [NeverSwap]
     private ushort _reserved1C;
+
     public BinaryPointer<BinaryString<byte>> Name;
     public BinaryPointer<ResActor> Actors;
     public BinaryPointer<ResEvent> Events;
@@ -34,7 +47,7 @@ public partial struct ResFlowchart
     public ResFlowchart()
     {
     }
-    
+
     public unsafe ref ResEntryPoint GetEntryPoint(StringView entryPointName)
     {
         int index = EntryPointNames.Get().FindIndex(entryPointName.Value);

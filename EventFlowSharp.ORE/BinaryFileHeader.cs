@@ -55,4 +55,29 @@ public partial struct BinaryFileHeader
             return ref MemUtils.GetRelativeTo<RelocationTable>(ptr, RelocationTableOffset);
         }
     }
+
+    public unsafe BinaryBlockHeader* GetFirstBlock()
+    {
+        if (FirstBlockOffset == 0) {
+            return null;
+        }
+        
+        fixed (BinaryFileHeader* ptr = &this) {
+            return (BinaryBlockHeader*)((byte*)ptr + FirstBlockOffset);
+        }
+    }
+
+    public unsafe T* FindFirstBlock<T>(uint magic) where T : unmanaged
+    {
+        if (FirstBlockOffset == 0) {
+            return null;
+        }
+
+        BinaryBlockHeader* block = GetFirstBlock();
+        if (block is not null && block->Magic == magic) {
+            return (T*)block;
+        }
+
+        return (T*)block->FindNextBlock(magic);
+    }
 }

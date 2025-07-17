@@ -5,6 +5,7 @@ namespace EventFlowSharp.ORE;
 [Swappable]
 public unsafe partial struct ResDic
 {
+    [NeverSwap]
     public uint Magic;
     public int EntryCount;
     public ResDicEntry FirstEntry;
