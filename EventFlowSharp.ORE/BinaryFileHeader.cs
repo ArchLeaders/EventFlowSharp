@@ -20,7 +20,7 @@ public partial struct BinaryFileHeader
 
     public Endianness ByteOrder;
     public byte Alignment;
-    public byte Padding1;
+    public byte TargetAddressSize;
     public int FileNameOffset;
     public RelocationFlags RelocationFlags;
     public ushort FirstBlockOffset;
