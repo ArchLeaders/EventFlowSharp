@@ -20,7 +20,7 @@ public partial struct ResEvent
     public ResSwitchEvent SwitchEvent;
     
     [FieldOffset(10)]
-    public ResJoinEvent ForkEvent;
+    public ResForkEvent ForkEvent;
     
     [FieldOffset(10)]
     public ResJoinEvent JoinEvent;
@@ -54,7 +54,7 @@ public partial struct ResSwitchEvent
 {
     public ushort CaseCount;
     public ushort ActorIndex;
-    public ushort ActorActionIndex;
+    public ushort ActorQueryIndex;
     public BinaryPointer<ResMetaData> Params;
     public BinaryPointer<ResCase> Cases;
 }
