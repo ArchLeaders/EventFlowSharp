@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using CommunityToolkit.HighPerformance.Buffers;
 using EventFlowSharp.Events;
@@ -88,7 +89,7 @@ internal static unsafe class FromRes
             });
         }
 
-        // TODO: Parameters
+        result.Parameters = Parameters(ref actor.Params.Get());
 
         return result;
     }
@@ -106,9 +107,13 @@ internal static unsafe class FromRes
 
     public static Dictionary<string, CafeVariableDef> VariableDefs(ref ResEntryPoint entryPoint, string entryPointName)
     {
+        if (entryPoint.VariableDefsCount <= 0) {
+            return [];
+        }
+        
         Dictionary<string, CafeVariableDef> results = new(entryPoint.VariableDefsCount);
 
-        var variableDefsDicEntries = entryPoint.VariableDefNames.GetPtr()->GetEntries();
+        var variableDefsDicEntries = entryPoint.VariableDefNames.GetPtr()->GetEntries() + 1;
         var variableDefs = entryPoint.VariableDefs.GetPtr();
         for (int i = 0; i < entryPoint.VariableDefsCount; i++) {
             var key = variableDefsDicEntries[i].GetKey().ToString();
@@ -121,7 +126,24 @@ internal static unsafe class FromRes
 
     public static CafeVariableDef VariableDef(ref ResVariableDef variableDef)
     {
-        throw new NotImplementedException();
+        // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
+        return variableDef.Type switch {
+            ResMetaData.DataType.Float => variableDef.Value.Float,
+            ResMetaData.DataType.Int => variableDef.Value.Int,
+            ResMetaData.DataType.FloatArray => ToArray(variableDef.Value.FloatArray.GetPtr(), variableDef.Count),
+            ResMetaData.DataType.IntArray => ToArray(variableDef.Value.IntArray.GetPtr(), variableDef.Count),
+            _ => throw new NotSupportedException($"Unsupported VariableDef DataType: {variableDef.Type}")
+        };
+
+        T[] ToArray<T>(T* values, int count) where T : unmanaged
+        {
+            var result = new T[count];
+            for (int i = 0; i < count; i++) {
+                result[i] = values[i];
+            }
+
+            return result;
+        }
     }
 
     public static SpanOwner<CafeEvent> Events(ref ResFlowchart flowchart, CafeFlowchart result)
@@ -148,16 +170,18 @@ internal static unsafe class FromRes
 
             switch (events[i]) {
                 case ILinearEvent linearEvent:
-                    linearEvent.NextEvent = events[resEvent.ActionEvent.NextEventIndex];
+                    linearEvent.NextEvent = resEvent.ActionEvent.NextEventIndex is -1
+                        ? null : events[resEvent.ActionEvent.NextEventIndex];
                     break;
                 case CafeForkEvent forkEvent:
-                    var forkIndices = resEvent.ForkEvent.ForkEventIndices.GetPtr(); 
+                    var forkIndices = resEvent.ForkEvent.ForkEventIndices.GetPtr();
                     for (int pi = 0; pi < resEvent.ForkEvent.ForkCount; pi++) {
                         forkEvent.Branches.Add(events[forkIndices[pi]]);
                     }
+
                     break;
                 case CafeSwitchEvent switchEvent:
-                    var cases = resEvent.SwitchEvent.Cases.GetPtr(); 
+                    var cases = resEvent.SwitchEvent.Cases.GetPtr();
                     for (int caseIndex = 0; caseIndex < resEvent.SwitchEvent.CaseCount; caseIndex++) {
                         ref var switchCase = ref cases[caseIndex];
                         switchEvent.Cases.Add(new CafeSwitchEventCase {
@@ -165,6 +189,7 @@ internal static unsafe class FromRes
                             Event = events[switchCase.EventIndex]
                         });
                     }
+
                     break;
             }
         }
@@ -177,7 +202,7 @@ internal static unsafe class FromRes
         return new CafeActionEvent {
             Name = name,
             Action = result.Actors[actionEvent.ActorIndex].ActionList[actionEvent.ActorActionIndex],
-            // TODO: Parameters 
+            Parameters = Parameters(ref actionEvent.Params.Get())
         };
     }
 
@@ -186,7 +211,7 @@ internal static unsafe class FromRes
         return new CafeSwitchEvent {
             Name = name,
             Query = result.Actors[switchEvent.ActorIndex].QueryList[switchEvent.ActorQueryIndex],
-            // TODO: Parameters 
+            Parameters = Parameters(ref switchEvent.Params.Get())
         };
     }
 
@@ -210,8 +235,76 @@ internal static unsafe class FromRes
         return new CafeSubFlowEvent {
             Name = name,
             Flowchart = subFlowEvent.SubFlowFlowchart.Get().String,
-            EntryPoint = subFlowEvent.SubFlowEntryPoints.Get().String
-            // TODO: Parameters 
+            EntryPoint = subFlowEvent.SubFlowEntryPoints.Get().String,
+            Parameters = Parameters(ref subFlowEvent.Params.Get())
         };
+    }
+
+    private static CafeUserData Parameters(ref ResMetaData metaData)
+    {
+        if (Unsafe.IsNullRef(ref metaData)) {
+            return [];
+        }
+        
+        if (metaData.Type != ResMetaData.DataType.Container) {
+            throw new InvalidDataException($"Expected container type but found {metaData.Type}");
+        }
+
+        CafeUserData result = [];
+
+        var keys = metaData.Dictionary.Get().GetEntries() + 1;
+        fixed (BinaryPointer<ResMetaData>* valuePointers = &metaData.Value.Container) {
+            for (int i = 0; i < metaData.ItemCount; i++) {
+                var key = keys[i].GetKey().ToString();
+                ref var value = ref valuePointers[i].Get();
+
+                ArgumentNullException.ThrowIfNull(key);
+
+                // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
+                result[key] = value.Type switch {
+                    ResMetaData.DataType.Argument
+                        => new CafeUserDataEntry(value.Value.String.Get().String, isArgument: true),
+                    ResMetaData.DataType.Bool
+                        => new CafeUserDataEntry(value.Value.Int != 0),
+                    ResMetaData.DataType.Int
+                        => new CafeUserDataEntry(value.Value.Int),
+                    ResMetaData.DataType.Float
+                        => new CafeUserDataEntry(value.Value.Float),
+                    ResMetaData.DataType.String
+                        => new CafeUserDataEntry(value.Value.String.Get().String),
+                    ResMetaData.DataType.WString
+                        => new CafeUserDataEntry(value.Value.WideString.Get().String, isWideString: true),
+                    ResMetaData.DataType.ActorIdentifier
+                        => new CafeUserDataEntry(
+                            (name: value.Value.Actor.Name.Get().String, subName: value.Value.Actor.SubName.Get().String)
+                        ),
+                    ResMetaData.DataType.BoolArray
+                        => new CafeUserDataEntry(GetArray(ref value, x => x.Int != 0)),
+                    ResMetaData.DataType.IntArray
+                        => new CafeUserDataEntry(GetArray(ref value, x => x.Int)),
+                    ResMetaData.DataType.FloatArray
+                        => new CafeUserDataEntry(GetArray(ref value, x => x.Float)),
+                    ResMetaData.DataType.StringArray
+                        => new CafeUserDataEntry(GetArray(ref value, x => x.String.Get().String)),
+                    ResMetaData.DataType.WStringArray
+                        => new CafeUserDataEntry(GetArray(ref value, x => x.WideString.Get().String), isWideString: true),
+                    _ => throw new InvalidDataException($"Invalid EVFL parameter type: {value.Type}")
+                };
+            }
+        }
+
+        return result;
+    }
+
+    private static T[] GetArray<T>(ref ResMetaData parameter, Func<ResMetaDataValue, T> select)
+    {
+        var result = new T[parameter.ItemCount];
+        fixed (ResMetaDataValue* first = &parameter.Value) {
+            for (int i = 0; i < parameter.ItemCount; i++) {
+                result[i] = select(first[i]);
+            }
+        }
+
+        return result;
     }
 }

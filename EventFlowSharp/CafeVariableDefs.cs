@@ -2,7 +2,7 @@ using System.Text;
 
 namespace EventFlowSharp;
 
-public sealed class CafeUserData : Dictionary<string, CafeUserDataEntry>
+public sealed class CafeVariableDefs : Dictionary<string, CafeVariableDef>
 {
     public string ToMarkup()
     {
@@ -17,7 +17,7 @@ public sealed class CafeUserData : Dictionary<string, CafeUserDataEntry>
         return output.ToString();
     }
     
-    public static CafeUserData FromMarkup(string markup)
+    public static CafeVariableDefs FromMarkup(string markup)
     {
         throw new NotImplementedException();
     }
