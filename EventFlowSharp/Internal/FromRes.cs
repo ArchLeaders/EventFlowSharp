@@ -42,7 +42,7 @@ internal static unsafe class FromRes
         using var eventSpanOwner = Events(ref flowchart, result);
         var events = eventSpanOwner.Span;
 
-        var entryPointResDicEntries = flowchart.EntryPointNames.GetPtr()->GetEntries();
+        var entryPointResDicEntries = flowchart.EntryPointNames.GetPtr()->GetEntries() + 1;
         var entryPoints = flowchart.EntryPoints.GetPtr();
         for (int i = 0; i < flowchart.EntryPointCount; i++) {
             var entryPoint = EntryPoint(ref entryPointResDicEntries[i], ref entryPoints[i], events);
@@ -74,20 +74,16 @@ internal static unsafe class FromRes
 
         var actionList = actor.Actions.GetPtr();
         for (int i = 0; i < actor.ActionsCount; i++) {
-            var actionName = actionList[i].Name.Get().ToString();
-            ArgumentNullException.ThrowIfNull(actionName, $"Actor[{actorName}].ActionName");
             result.ActionList.Add(new CafeAction {
-                Action = actionName,
+                Action = actionList[i].Name.Get().String,
                 Actor = result
             });
         }
 
         var queryList = actor.Queries.GetPtr();
         for (int i = 0; i < actor.QueriesCount; i++) {
-            var queryName = queryList[i].Name.Get().ToString();
-            ArgumentNullException.ThrowIfNull(queryName, $"Actor[{actorName}].QueryName");
             result.QueryList.Add(new CafeQuery {
-                Query = queryName,
+                Query = queryList[i].Name.Get().String,
                 Actor = result
             });
         }

@@ -45,7 +45,7 @@ public sealed class CafeEventFlowFile
         evfl->Relocate();
 
         // Flowcharts
-        var flowchartNameDicEntries = evfl->FlowchartNames.GetPtr()->GetEntries();
+        var flowchartNameDicEntries = evfl->FlowchartNames.GetPtr()->GetEntries() + 1;
         var flowcharts = evfl->Flowcharts.GetPtr()->GetPtr();
         for (int i = 0; i < evfl->FlowchartCount; i++) {
             Flowcharts.Add(
