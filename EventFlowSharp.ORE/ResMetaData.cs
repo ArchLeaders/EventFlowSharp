@@ -9,6 +9,7 @@ public partial struct ResMetaData
 {
     public DataType Type;
     public ushort ItemCount;
+    private uint _padding;
     public BinaryPointer<ResDic> Dictionary;
     public ResMetaDataValue Value;
     
